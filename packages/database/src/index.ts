@@ -1,6 +1,8 @@
 import { Redis } from "ioredis";
-import mongoose, { Schema, model, models, type Model } from "mongoose";
+import mongoose from "mongoose";
 import { defaultGuildConfig, type AuditAction, type GuildConfig } from "@manok/shared";
+
+const { Schema, model, models } = mongoose;
 
 let redisClient: Redis | null = null;
 
@@ -69,7 +71,7 @@ const guildConfigSchema = new Schema<GuildConfig>(
 );
 
 export const GuildConfigModel = (models.GuildConfig ||
-  model<GuildConfig>("GuildConfig", guildConfigSchema)) as Model<GuildConfig>;
+  model<GuildConfig>("GuildConfig", guildConfigSchema)) as typeof models.GuildConfig;
 
 export type AuditLog = {
   guildId: string;
@@ -92,7 +94,7 @@ const auditLogSchema = new Schema<AuditLog>(
   { timestamps: false }
 );
 
-export const AuditLogModel = (models.AuditLog || model<AuditLog>("AuditLog", auditLogSchema)) as Model<AuditLog>;
+export const AuditLogModel = (models.AuditLog || model<AuditLog>("AuditLog", auditLogSchema)) as typeof models.AuditLog;
 
 export type Ticket = {
   guildId: string;
@@ -113,7 +115,7 @@ const ticketSchema = new Schema<Ticket>(
   { timestamps: true }
 );
 
-export const TicketModel = (models.Ticket || model<Ticket>("Ticket", ticketSchema)) as Model<Ticket>;
+export const TicketModel = (models.Ticket || model<Ticket>("Ticket", ticketSchema)) as typeof models.Ticket;
 
 export async function getGuildConfig(guildId: string): Promise<GuildConfig> {
   const found = await GuildConfigModel.findOne({ guildId }).lean<GuildConfig>();
@@ -134,3 +136,4 @@ export async function updateGuildConfig(guildId: string, patch: Partial<GuildCon
 export async function writeAuditLog(log: Omit<AuditLog, "createdAt">) {
   return AuditLogModel.create({ ...log, createdAt: new Date() });
 }
+
